@@ -317,14 +317,15 @@ class UoY_DateHandler
             $relativetoterm /= 60 * 60 * 24 * 7;
             $week = (int) $relativetoterm + 1;
         } else {
-            $weekdayoffset = @strtotime("last Monday 31st August ".$year);
+            $start = @strtotime("31st August ".$year);
+            $weekdayoffset = @strtotime("last Monday",$start);
             $term_details = self::term_info($weekdayoffset);
             if (!$term_details) {
               return false; //can't infer any information for the week number
             }
             $relativetoterm = $date - $weekdayoffset;
             $relativetoterm /= 60 * 60 * 24 * 7;
-            $week = (int) $relativetoterm + $term_details['weeknum'];
+            $week = (int) $relativetoterm + $term_details->getWeek();
         }
         $result['weeknum'] = $week;
         $result['termnum'] = (($term % 2) == 1) ? ($term + 1) / 2 : 0;
@@ -332,21 +333,6 @@ class UoY_DateHandler
         if ($term == 0)
             $result['breaknum'] = 3;
         $result['yearnum'] = ($term != 0) ? $year : $year - 1;
-        switch ($term) {
-            case 0: case 6: $result['termname'] = 'Summer Break';
-                break;
-            case 1: $result['termname'] = 'Autumn Term';
-                break;
-            case 2: $result['termname'] = 'Winter Break';
-                break;
-            case 3: $result['termname'] = 'Spring Term';
-                break;
-            case 4: $result['termname'] = 'Spring Break';
-                break;
-            case 5: $result['termname'] = 'Summer Term';
-                break;
-        }
-        $result['yearname'] = $result['yearnum'] . '-' . ($result['yearnum'] + 1);
 
         return new UoY_Date(
             $result['yearnum'],
@@ -360,7 +346,7 @@ class UoY_DateHandler
     public static function test()
     {
         $day = @strtotime("1st September 2010");
-        for ($i = 0; $i < 365; $i++) {
+        for ($i = 0; $i < 365*2; $i++) {
             echo @date("Y-m-d", $day) . "\n";
             if (self::term_info($day) === false) {
                 echo "not convertable using given data.\n";
