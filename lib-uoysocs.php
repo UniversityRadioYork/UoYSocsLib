@@ -172,9 +172,8 @@ class UoY_DateHandler
         return true;
     }
 
-    public static function is_year_in_cache($year, $update)
+    public static function year_exists($year, $update=false)
     {
-        //MAYBE rename to year_exists
         if (!self::cache_exists()) {
           return false; //cache file missing and can't be made
         }
@@ -191,7 +190,7 @@ class UoY_DateHandler
 
     //assumption 01-Sept is the earliest academic year start
 
-    public static function academic_year_start($date)
+    public static function year_number($date)
     {
         //MAYBE rename to year_number
         return @date("Y", $date - @strtotime("1st September 1970"));
@@ -201,8 +200,8 @@ class UoY_DateHandler
     {
         $ld = self::$_localdir;
         $file = self::$_file;
-        $year = self::academic_year_start($date);
-        if (!self::is_year_in_cache($year, true)) {
+        $year = self::year_number($date);
+        if (!self::year_exists($year, true)) {
             return false;
         }
         $tmpxml = simplexml_load_file("${ld}/${file}");
