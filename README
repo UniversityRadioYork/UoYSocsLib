@@ -1,7 +1,7 @@
 Current functionality:
-get_uoy_term_info($epoch) -- returns array containing week number (0 if not term), term number (0 is not term), year number (academic start year), term name (including breaks), year name (YYYY-YYYY format)
+get_uoy_term_info($epoch) -- returns array containing week number (0 if not term), term number (0 if not term), year number (academic start year), term name (including breaks), year name (YYYY-YYYY format)
 
-the function will look at the cache for the data, if not availible the cache will update from trusted sources.
+the function will look at the cache for the data, if not availabile the cache will update from trusted sources.
 
 TODO: add functions to add trusted sources, add functions to add data to xml file. At the moment these are done manually. 
 
