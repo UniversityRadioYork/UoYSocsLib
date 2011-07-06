@@ -269,6 +269,16 @@ class UoY_DateHandler
         //MAYBE rename to year_number
         return @date("Y", $date - @strtotime("1st September 1970"));
     }
+    
+    private static function floor_Monday($datestr){
+        $prevMon = @strtotime("last Monday".$datestr);
+        $m1week = @strtotime($datestr." -1 week");
+        if ($prevMon == $m1week){
+            return @strtotime($datestr);
+        } else {
+            return $prevMon;
+        }
+    }
 
     public static function term_info($date)
     {
@@ -280,27 +290,19 @@ class UoY_DateHandler
         }
         $tmpxml = simplexml_load_file("$ld/$file");
         $res = $tmpxml->xpath("/uoytermdates/termdates[year=$year]");
-        $feature[] = @strtotime("31st August $year");
-        $feature[] = @strtotime("1st September " . ($year + 1) . "");
+        $feature[] = @strtotime("1st September $year");//inclusive
+        $feature[] = @strtotime("1st September " . ($year + 1));//exclusive
         foreach ($res[0]->term as $t) {
-            $feature[] = @strtotime($t->start);
-            $feature[] = @strtotime($t->end);
+            $feature[] = self::floor_Monday($t->start);//inclusive
+            $feature[] = @strtotime("next Monday ".($t->end));//exclusive
         }
         sort($feature, SORT_NUMERIC);
+        //TODO rename to ??? $term isn't correct
         $term = 0;
         for ($i = 0; $i < count($feature) - 1; $i = $i + 1) {
-            if ($i % 2 == 0) {
-                //Break (exclusive dates)
-                if (($date > $feature[$i] + 60 * 60 * 24) && ($date < $feature[$i + 1])) {
-                    $term = $i;
-                    break;
-                }
-            } else {
-                //Term (inclusive dates)
-                if (($date >= $feature[$i]) && ($date <= $feature[$i + 1] + 60 * 60 * 24)) {
-                    $term = $i;
-                    break;
-                }
+            if (($date >= $feature[$i]) && ($date < $feature[$i + 1])) {
+                $term = $i;
+                break;
             }
         }
         //0 - $year-1 summer break
@@ -311,19 +313,18 @@ class UoY_DateHandler
         //5 - term 3
         //6 - $year summer break
         if ($term != 0) {
-            $weekdayoffset = @strtotime("last Monday", $feature[$term]);
-            $relativetoterm = $date - $weekdayoffset;
+            $relativetoterm = $date - $feature[$term];
             $relativetoterm /= 60 * 60 * 24 * 7;
-            $week = (int) $relativetoterm;
+            $week = (int) $relativetoterm + 1;
         } else {
-            $weekdayoffset = @strtotime("last Monday 31st August ".($year - 1));
+            $weekdayoffset = @strtotime("last Monday 31st August ".$year);
             $term_details = self::term_info($weekdayoffset);
             if (!$term_details) {
               return false; //can't infer any information for the week number
             }
             $relativetoterm = $date - $weekdayoffset;
             $relativetoterm /= 60 * 60 * 24 * 7;
-            $week = (int) $relativetoterm + $term_details['weeknum'] - 1;
+            $week = (int) $relativetoterm + $term_details['weeknum'];
         }
         $result['weeknum'] = $week;
         $result['termnum'] = (($term % 2) == 1) ? ($term + 1) / 2 : 0;
@@ -358,14 +359,15 @@ class UoY_DateHandler
 
     public static function test()
     {
+        $day = @strtotime("1st September 2010");
         for ($i = 0; $i < 365; $i++) {
-            $day = @strtotime("1st September 2010") + $i * 60 * 60 * 24;
             echo @date("Y-m-d", $day) . "\n";
             if (self::term_info($day) === false) {
                 echo "not convertable using given data.\n";
             } else {
                 echo self::term_info($day)->toString() . "\n";
             }
+            $day = @strtotime(@date("Y-m-d", $day) . " +1 day");
         }
     }
 
