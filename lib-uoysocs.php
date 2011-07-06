@@ -12,28 +12,33 @@ class UoY_DateHandler
 {
 
     //variables to change
-    private $_file = 'uoy-term-dates.xml';
-    private $_url = 'localhost';
-    private $_localdir = '';
-    private $_bootloader = 'http://ury.york.ac.uk/xml/uoy-term-dates.xml';
+    protected static $_file = 'uoy-term-dates.xml';
+    protected static $_url = 'localhost';
+    protected static $_localdir = '/var/www/xml';
+    protected static $_bootloader = 'http://ury.york.ac.uk/xml/uoy-term-dates.xml';
 
     public function __construct()
     {
-        $this->_localdir = $_SERVER['DOCUMENT_ROOT'] . '/xml';
-        $this->test();
+      if (!defined('STDIN')){
+        self::$_localdir = $_SERVER['DOCUMENT_ROOT'].'/xml';
+      }
     }
 
-    function bootload_file()
+    protected static function bootload_file()
     {
-        $dest = $this->_localdir . '/' . $this->_file;
+        $dest = self::$_localdir . '/' . self::$_file;
+        $res = mkdir(self::$_localdir,0770,true);
+        if (!$res){
+          return false;
+        }
         $res = touch($dest, 0);
         if (!$res) {
             return false; //local file doesn't exist
         }
-        return copy($this->_bootloader, $dest);
+        return copy($_bootloader, $dest);
     }
 
-    function get_years($xml)
+    protected static function get_years($xml)
     {
         $years = $xml->xpath('/uoytermdates/termdates/year');
         $res = array();
@@ -44,13 +49,13 @@ class UoY_DateHandler
         return $res;
     }
 
-    function get_updated_time($xml)
+    protected static function get_updated_time($xml)
     {
         $res = $xml->xpath('/uoytermdates/updated[1]');
         return @strtotime($res[0]);
     }
 
-    function add_year_to_cache($xml, $year, $tmpxml)
+    protected static function add_year_to_cache($xml, $year, $tmpxml)
     {
         $res = $xml->xpath("/uoytermdates/termdates[year=${year}]");
         $data = dom_import_simplexml($res[0]);
@@ -61,7 +66,7 @@ class UoY_DateHandler
         $tmpxml = simplexml_import_dom($dom);
     }
 
-    function get_trusted_sources($tmpxml)
+    protected static function get_trusted_sources($tmpxml)
     {
         $res = $tmpxml->xpath('/uoytermdates/source[trusted="yes"]/url');
         $result = array();
@@ -71,7 +76,7 @@ class UoY_DateHandler
         return $result;
     }
 
-    function get_sources($xml)
+    protected static function get_sources($xml)
     {
         $res = $tmpxml->xpath('/uoytermdates/source/url');
         $result = array();
@@ -81,40 +86,51 @@ class UoY_DateHandler
         return $result;
     }
 
-    function change_update_time_of_cache($time, $tmpxml)
+    protected static function change_update_time_of_cache($time, $tmpxml)
     {
         $tmpxml->updated[0] = @date('Y-m-d\TH:i:sP', $time);
     }
 
-    function write_to_cache($tmpxml)
+    protected static function write_to_cache($tmpxml)
     {
-        return file_put_contents($this->_localdir . '/' . $this->_file, $tmpxml->asXML());
+        return file_put_contents(self::$_localdir . '/' . self::$_file, $tmpxml->asXML());
     }
 
-    function add_source_to_cache($trust, $tmpxml)
+    protected static function add_source_to_cache($trust, $tmpxml)
     {
         //TODO
     }
 
-    function update_cache()
+    protected static function cache_exists()
     {
-        $url = $this->_url;
-        $file = $this->_file;
+        $file = self::$_file;
+        $localdir = self::$_localdir;
+        if (!file_exists("${localdir}/${file}")) {
+            return bootload_file();
+        }
+        return true;
+    }
+
+    public static function update_cache()
+    {
+        $url = self::$_url;
+        $file = self::$_file;
+        $localdir = self::$_localdir;
         
         $cache = array(
             'public' => "http://${url}/${file}",
             'local' => "${localdir}/${file}"
         );
 
-        if (!file_exists($cache['local'])) {
-            $this->bootload_file();
+        if (!cache_exists()) {
+          return false; //cache file missing and can't be made
         }
 
         $tmpxml = simplexml_load_file($cache['local']);
 
-        $sources = $this->get_trusted_sources($tmpxml);
-        $lastupdate = $this->get_updated_time($tmpxml);
-        $localyears = $this->get_years($tmpxml);
+        $sources = self::get_trusted_sources($tmpxml);
+        $lastupdate = self::get_updated_time($tmpxml);
+        $localyears = self::get_years($tmpxml);
 
         $sourceslist = $sources;
         $updated = false;
@@ -123,26 +139,26 @@ class UoY_DateHandler
                 $xml = @simplexml_load_file($f);
                 if (!$xml)
                     break; //remote file doesn't exist
-                $utime = $this->get_updated_time($xml);
+                $utime = self::get_updated_time($xml);
                 //find newer version
                 if ($lastupdate < $utime) {
                     //update sources
-                    $sourcesremote = $this->get_sources($xml);
+                    $sourcesremote = self::get_sources($xml);
                     $sourcestoupdate = array_diff($sourcesremote, $sourceslist);
                     foreach ($sourcestoupdate as $s) {
-                        $this->add_source_to_cache($s, false, $tmpxml);
+                        self::add_source_to_cache($s, false, $tmpxml);
                         $sourcelist[] = $s;
                     }
                     //update termdates
-                    $yearremote = $this->get_years($xml);
+                    $yearremote = self::get_years($xml);
                     $yearstoupdate = array_diff($yearremote, $localyears);
                     foreach ($yearstoupdate as $year) {
-                        $this->add_year_to_cache($xml, $year, $tmpxml);
+                        self::add_year_to_cache($xml, $year, $tmpxml);
                         $yearlocal[] = $year;
                     }
                     //update timestamp
                     if (count($yearstoupdate) != 0) {
-                        $this->change_update_time_of_cache($utime, $tmpxml);
+                        self::change_update_time_of_cache($utime, $tmpxml);
                         $lastupdate = $utime;
                         $updated = true;
                     }
@@ -150,36 +166,40 @@ class UoY_DateHandler
             }
         }
         if ($updated) {
-            return write_to_cache($tmpxml);
+            return self::write_to_cache($tmpxml);
         }
         return true;
     }
 
-    function is_year_in_xml($year, $update)
+    public static function is_year_in_cache($year, $update)
     {
-        $ld = $this->_localdir;
-        $file = $this->_file;
+        if (!self::cache_exists()) {
+          return false; //cache file missing and can't be made
+        }
+        $ld = self::$_localdir;
+        $file = self::$_file;
         $tmpxml = simplexml_load_file("${ld}/${file}");
         $res = $tmpxml->xpath("/uoytermdates/termdates[year=${year}]");
         if ((count($res[0]) == 0) && $update) {
-            $this->update_cache();
+            update_cache();
             $res = $tmpxml->xpath("/uoytermdates/termdates[year=${year}]");
         }
         return count($res[0]) != 0; //no year exist in xml even after update
     }
 
-//assumption 01-Sept is the earliest academic year start
-    function get_academic_year_start($date)
+    //assumption 01-Sept is the earliest academic year start
+
+    public static function academic_year_start($date)
     {
         return @date("Y", $date - @strtotime("1st September 1970"));
     }
 
-    function get_uoy_term_info($date)
+    public static function uoy_term_info($date)
     {
-        $ld = $this->_localdir;
-        $file = $this->_file;
-        $year = $this->get_academic_year_start($date);
-        if (!$this->is_year_in_xml($year, true)) {
+        $ld = self::$_localdir;
+        $file = self::$_file;
+        $year = self::academic_year_start($date);
+        if (!self::is_year_in_cache($year, true)) {
             return false;
         }
         $tmpxml = simplexml_load_file("${ld}/${file}");
@@ -214,12 +234,13 @@ class UoY_DateHandler
         //4 - $year easter break
         //5 - term 3
         //6 - $year summer break
-        if (($term % 2) == 1) {
+        if ($term != 0) {
             $weekdayoffset = @strtotime("last Monday", $feature[$term]);
             $relativetoterm = $date - $weekdayoffset;
             $relativetoterm /= 60 * 60 * 24 * 7;
             $week = (int) $relativetoterm;
         } else {
+            //TODO find solution to week number of $year-1 summer term
             $week = 0;
         }
         $result['weeknum'] = $week;
@@ -247,12 +268,12 @@ class UoY_DateHandler
         return $result;
     }
 
-    function test()
+    public static function test()
     {
         for ($i = 0; $i < 365; $i++) {
             $day = @strtotime("1st September 2010") + $i * 60 * 60 * 24;
             echo @date("Y-m-d", $day) . "\n";
-            print_r($this->get_uoy_term_info($day));
+            print_r(self::uoy_term_info($day));
         }
     }
 
