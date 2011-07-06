@@ -1,0 +1,38 @@
+<?xml version="1.0" standalone="yes"?>
+<uoytermdates>
+  <updated>2010-10-11T12:12:00-00:00</updated>
+  <source>
+    <url>http://ury.york.ac.uk/xml/uoy-term-dates.xml</url>
+    <trusted>yes</trusted>
+  </source>
+  <termdates>
+    <year>2010</year>
+    <term>
+      <start>2010-10-11</start>
+      <end>2010-12-17</end>
+    </term>
+    <term>
+      <start>2011-01-10</start>
+      <end>2011-03-18</end>
+    </term>
+    <term>
+      <start>2011-04-26</start>
+      <end>2011-07-01</end>
+    </term>
+  </termdates>
+  <termdates>
+    <year>2010</year>
+    <term>
+      <start>2010-10-11</start>
+      <end>2010-12-17</end>
+    </term>
+    <term>
+      <start>2011-01-10</start>
+      <end>2011-03-18</end>
+    </term>
+    <term>
+      <start>2011-04-26</start>
+      <end>2011-07-01</end>
+    </term>
+  </termdates>
+</uoytermdates>
