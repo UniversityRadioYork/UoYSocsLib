@@ -97,12 +97,12 @@ function update_cache() {
       $utime = get_updated_time($xml);
       //find newer version
       if ($lastupdate < $utime) {
-	//update sources
-	$sourcesremote = get_sources($xml);
-	$sourcestoupdate = array_diff($sourcesremote,$sourceslist);
+        //update sources
+        $sourcesremote = get_sources($xml);
+        $sourcestoupdate = array_diff($sourcesremote,$sourceslist);
         foreach ($sourcestoupdate as $s) {
           add_source_to_cache($s,false,$tmpxml);
-	  $sourcelist[] = $s;
+          $sourcelist[] = $s;
         }
         //update termdates
         $yearremote = get_years($xml);
@@ -111,7 +111,7 @@ function update_cache() {
           add_year_to_cache($xml,$year,$tmpxml);
           $yearlocal[] = $year;
         }
-	//update timestamp
+        //update timestamp
         if (count($yearstoupdate) != 0) {
           change_update_time_of_cache($utime,$tmpxml);
           $lastupdate = $utime;
