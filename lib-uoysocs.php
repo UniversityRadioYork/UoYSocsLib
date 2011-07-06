@@ -27,9 +27,11 @@ class UoY_DateHandler
     protected static function bootload_file()
     {
         $dest = self::$_localdir . '/' . self::$_file;
-        $res = mkdir(self::$_localdir,0770,true);
-        if (!$res){
-          return false;
+        if (!file_exists(self::$_localdir)) {
+          $res = mkdir(self::$_localdir,0770,true);
+          if (!$res){
+            return false;
+          }
         }
         $res = touch($dest, 0);
         if (!$res) {
@@ -110,7 +112,7 @@ class UoY_DateHandler
         $file = self::$_file;
         $localdir = self::$_localdir;
         if (!file_exists("${localdir}/${file}")) {
-            return bootload_file();
+            return self::bootload_file();
         }
         return true;
     }
@@ -121,7 +123,7 @@ class UoY_DateHandler
         $file = self::$_file;
         $localdir = self::$_localdir;
         
-        if (!cache_exists()) {
+        if (!self::cache_exists()) {
           return false; //cache file missing and can't be made
         }
 
@@ -180,11 +182,11 @@ class UoY_DateHandler
         $file = self::$_file;
         $tmpxml = simplexml_load_file("${ld}/${file}");
         $res = $tmpxml->xpath("/uoytermdates/termdates[year=${year}]");
-        if ((count($res[0]) == 0) && $update) {
-            update_cache();
+        if (($res == array()) && $update) {
+            self::update_cache();
             $res = $tmpxml->xpath("/uoytermdates/termdates[year=${year}]");
         }
-        return count($res[0]) != 0; //no year exist in xml even after update
+        return $res != array(); //no year exist in xml even after update
     }
 
     //assumption 01-Sept is the earliest academic year start
@@ -241,7 +243,7 @@ class UoY_DateHandler
             $relativetoterm /= 60 * 60 * 24 * 7;
             $week = (int) $relativetoterm;
         } else {
-            $weekdayoffset = @strtotime("last Manday 31st August ".$year - 1."");
+            $weekdayoffset = @strtotime("last Manday 31st August ".($year - 1));
             $term_details = self::term_info($weekdayoffset);
             if (!$term_details) {
               return false; //can't infer any information for the week number
