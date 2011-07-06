@@ -192,6 +192,8 @@ function get_uoy_term_info($date){
   }
   $result['weeknum'] = $week;
   $result['termnum'] = (($term % 2) == 1)?($term+1)/2:0;
+  $result['breaknum'] = (($term % 2) == 0)?($term)/2:0;
+  if ($term == 0) $result['breaknum'] = 3;
   $result['yearnum'] = ($term != 0)?$year:$year-1;
   switch($term){
     case 0: case 6: $result['termname'] = 'Summer Break'; break;
@@ -201,16 +203,18 @@ function get_uoy_term_info($date){
     case 4: $result['termname'] = 'Spring Break'; break;
     case 5: $result['termname'] = 'Summer Term'; break;
   }
-  $result['yearname'] = $result['yearnum'].'-'.$result['yearnum']+1;
+  $result['yearname'] = $result['yearnum'].'-'.($result['yearnum']+1);
 
   return $result;
 }
 
-for ($i=0; $i<365; $i++) {
-  $day = @strtotime("1st September 2010") + $i * 60 * 60 * 24;
-  echo @date("Y-m-d",$day)."\n";
-  print_r(get_uoy_term_info($day));
+function test() {
+  for ($i=0; $i<365; $i++) {
+    $day = @strtotime("1st September 2010") + $i * 60 * 60 * 24;
+    echo @date("Y-m-d",$day)."\n";
+    print_r(get_uoy_term_info($day));
+  }
 }
 
 
-
+test();
