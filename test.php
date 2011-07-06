@@ -1,6 +1,6 @@
 <?php
 
-require_once('lib-uoysocs.php');
+require_once 'UoY_DateHandler.php';
 
 //$dh = new UoY_DateHandler();
 //$dh->test();

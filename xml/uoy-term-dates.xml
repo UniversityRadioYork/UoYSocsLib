@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <uoytermdates>
-  <updated>2010-10-11T12:12:00-00:00</updated>
+  <updated>2011-10-11T13:12:00+01:00</updated>
   <source>
     <url>http://ury.york.ac.uk/xml/uoy-term-dates.xml</url>
     <trusted>yes</trusted>
@@ -20,4 +20,18 @@
       <end>2011-07-01</end>
     </term>
   </termdates>
-</uoytermdates>
+<termdates>
+    <year>2011</year>
+    <term>
+      <start>2011-10-10</start>
+      <end>2011-12-16</end>
+    </term>
+    <term>
+      <start>2012-01-09</start>
+      <end>2012-03-16</end>
+    </term>
+    <term>
+      <start>2012-04-23</start>
+      <end>2012-06-29</end>
+    </term>
+  </termdates></uoytermdates>
