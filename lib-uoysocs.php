@@ -57,6 +57,8 @@ class UoY_DateHandler
 
     protected static function add_year_to_cache($xml, $year, $tmpxml)
     {
+        //TODO add validation
+        //MAYBE rename to copy_year_data
         $res = $xml->xpath("/uoytermdates/termdates[year=${year}]");
         $data = dom_import_simplexml($res[0]);
         $dom = dom_import_simplexml($tmpxml);
@@ -88,11 +90,13 @@ class UoY_DateHandler
 
     protected static function change_update_time_of_cache($time, $tmpxml)
     {
+        //MAYBE rename to set_updated_time
         $tmpxml->updated[0] = @date('Y-m-d\TH:i:sP', $time);
     }
 
     protected static function write_to_cache($tmpxml)
     {
+        //MAYBE rename to write_cache
         return file_put_contents(self::$_localdir . '/' . self::$_file, $tmpxml->asXML());
     }
 
@@ -173,6 +177,7 @@ class UoY_DateHandler
 
     public static function is_year_in_cache($year, $update)
     {
+        //MAYBE rename to year_exists
         if (!self::cache_exists()) {
           return false; //cache file missing and can't be made
         }
@@ -191,10 +196,11 @@ class UoY_DateHandler
 
     public static function academic_year_start($date)
     {
+        //MAYBE rename to year_number
         return @date("Y", $date - @strtotime("1st September 1970"));
     }
 
-    public static function uoy_term_info($date)
+    public static function term_info($date)
     {
         $ld = self::$_localdir;
         $file = self::$_file;
@@ -273,7 +279,7 @@ class UoY_DateHandler
         for ($i = 0; $i < 365; $i++) {
             $day = @strtotime("1st September 2010") + $i * 60 * 60 * 24;
             echo @date("Y-m-d", $day) . "\n";
-            print_r(self::uoy_term_info($day));
+            print_r(self::term_info($day));
         }
     }
 
