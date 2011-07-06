@@ -121,16 +121,11 @@ class UoY_DateHandler
         $file = self::$_file;
         $localdir = self::$_localdir;
         
-        $cache = array(
-            'public' => "http://${url}/${file}",
-            'local' => "${localdir}/${file}"
-        );
-
         if (!cache_exists()) {
           return false; //cache file missing and can't be made
         }
 
-        $tmpxml = simplexml_load_file($cache['local']);
+        $tmpxml = simplexml_load_file("${localdir}/${file}");
 
         $sources = self::get_trusted_sources($tmpxml);
         $lastupdate = self::get_updated_time($tmpxml);
@@ -139,7 +134,7 @@ class UoY_DateHandler
         $sourceslist = $sources;
         $updated = false;
         foreach ($sources as $f) {
-            if ($f != $cache['public']) {
+            if ($f != "http://${url}/${file}") {
                 $xml = @simplexml_load_file($f);
                 if (!$xml)
                     break; //remote file doesn't exist
@@ -246,8 +241,14 @@ class UoY_DateHandler
             $relativetoterm /= 60 * 60 * 24 * 7;
             $week = (int) $relativetoterm;
         } else {
-            //TODO find solution to week number of $year-1 summer term
-            $week = 0;
+            $weekdayoffset = @strtotime("last Manday 31st August ".$year - 1."");
+            $term_details = self::term_info($weekdayoffset);
+            if (!$term_details) {
+              return false; //can't infer any information for the week number
+            }
+            $relativetoterm = $date - $weekdayoffset;
+            $relativetoterm /= 60 * 60 * 24 * 7;
+            $week = (int) $relativetoterm + $term_details['weeknum'] - 1;
         }
         $result['weeknum'] = $week;
         $result['termnum'] = (($term % 2) == 1) ? ($term + 1) / 2 : 0;
