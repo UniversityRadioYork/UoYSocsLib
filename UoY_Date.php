@@ -6,11 +6,11 @@
  */
 class UoY_Date
 {
-    private $_year;
-    private $_term;
-    private $_isBreak;
-    private $_week;
-    private $_day;
+    protected $_year;
+    protected $_term;
+    protected $_isBreak;
+    protected $_week;
+    protected $_day;
     
     /**
      * Constructs a new date.

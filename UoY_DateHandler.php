@@ -270,7 +270,7 @@ class UoY_DateHandler
         return @date("Y", $date - @strtotime("1st September 1970"));
     }
     
-    private static function floor_Monday($datestr){
+    protected static function floor_Monday($datestr){
         $prevMon = @strtotime("last Monday".$datestr);
         $m1week = @strtotime($datestr." -1 week");
         if ($prevMon == $m1week){
