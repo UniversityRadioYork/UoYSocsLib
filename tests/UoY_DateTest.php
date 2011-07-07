@@ -1,6 +1,7 @@
 <?php
+// Imports, in turn, UoY_DateConstants.php
 require_once dirname(__FILE__) . '/../UoY_Date.php';
-require_once dirname(__FILE__) . '/../UoY_DateConstants.php';
+
 
 /**
  * Test class for UoY_Date.
@@ -43,7 +44,7 @@ class UoY_DateTest extends PHPUnit_Framework_TestCase
      */
     public function testGetYear()
     {
-        $this->assertEquals($this->object->getYear(), 2010);
+        $this->assertSame($this->object->getYear(), 2010);
         
         // Ensure the year is properly stored for next-calendar-year terms.
         $summerTest = new UoY_Date(
@@ -54,7 +55,7 @@ class UoY_DateTest extends PHPUnit_Framework_TestCase
             UoY_DateConstants::DAY_MONDAY
         );
         
-        $this->assertEquals($summerTest->getYear(), 2010);
+        $this->assertSame($summerTest->getYear(), 2010);
     }
     
     /**

@@ -394,19 +394,19 @@ class UoY_DateHandler
             $relativetoterm /= 60 * 60 * 24 * 7;
             $week = (int) $relativetoterm + $term_details->getWeek();
         }
-        $result['weeknum'] = $week;
-        $result['termnum'] = (($term % 2) == 1) ? ($term + 1) / 2 : 0;
-        $result['breaknum'] = (($term % 2) == 0) ? ($term) / 2 : 0;
+        $weeknum = $week;
+        $termnum = (($term % 2) == 1) ? ($term + 1) / 2 : 0;
+        $breaknum = (($term % 2) == 0) ? ($term) / 2 : 0;
         if ($term == 0) {
-            $result['breaknum'] = 3;
+            $breaknum = 3;
         }
-        $result['yearnum'] = ($term != 0) ? $year : $year - 1;
+        $yearnum = ($term != 0) ? $year : $year - 1;
 
         return new UoY_Date(
-            $result['yearnum'],
-            $result['termnum'] === 0 ? $result['breaknum'] : $result['termnum'],
-            ($result['termnum'] === 0), // Whether or not this is a break
-            $result['weeknum'],
+            intval($yearnum),
+            intval($termnum) === 0 ? intval($breaknum) : intval($termnum),
+            (intval($termnum) === 0), // Whether or not this is a break
+            intval($weeknum),
             intval(date('N', $date)) // Day
         );
     }

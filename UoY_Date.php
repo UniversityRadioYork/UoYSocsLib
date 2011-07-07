@@ -46,9 +46,49 @@ class UoY_Date
      *                         instead of a term.
      * @param integer $week    The week of the term or break.
      * @param integer $day     The day of the week.
+     * 
+     * @throws InvalidArgumentException if the types are incorrect.
+     * @throws OutOfBoundsException     if any variable is outside its 
+     *                                  expected range.
      */
     public function __construct($year, $term, $isBreak, $week, $day)
     {
+        // Type checks
+        if (is_integer($year) === false) {
+            throw new InvalidArgumentException('Year must be an integer.');
+        } else if (is_integer($term) === false) {
+            throw new InvalidArgumentException('Term must be an integer.');
+        } else if (is_integer($week) === false) {
+            throw new InvalidArgumentException('Week must be an integer.');
+        } else if (is_integer($day) === false) {
+            throw new InvalidArgumentException('Day must be an integer.');
+        } else if (is_bool($isBreak) === false) {
+            throw new InvalidArgumentException('isBreak must be an boolean.');
+        }
+     
+        // Range checks
+        if ($isBreak) {
+            if ($term < UoY_DateConstants::BREAK_LOWER_BOUND) {
+                throw new OutOfBoundsException('Break ID is too low.');
+            } else if ($term > UoY_DateConstants::BREAK_UPPER_BOUND) {
+                throw new OutOfBoundsException('Break ID is too high.');
+            }
+        } else {
+            if ($term < UoY_DateConstants::TERM_LOWER_BOUND) {
+                throw new OutOfBoundsException('Term ID is too low.');
+            } else if ($term > UoY_DateConstants::TERM_UPPER_BOUND) {
+                throw new OutOfBoundsException('Term ID is too high.');
+            }
+        }
+        if ($week < 1) {
+            throw new OutOfBoundsException('Week must be positive.');
+        }
+        if ($day < UoY_DateConstants::DAY_LOWER_BOUND) {
+            throw new OutOfBoundsException('Day ID is too low.');
+        } else if ($day > UoY_DateConstants::DAY_UPPER_BOUND) {
+            throw new OutOfBoundsException('Day ID is too high.');
+        }
+        
         $this->year = $year;
         $this->term = $term;
         $this->isBreak = $isBreak;
