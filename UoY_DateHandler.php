@@ -76,7 +76,7 @@ class UoY_DateHandler
     /**
      * Gets a list of the years in the given term date set.
      * 
-     * @param object $xml The XML object representing the term date set.
+     * @param object $xml The SimpleXMLElement object representing the term date set.
      * 
      * @return array A sorted list of years.
      */
@@ -94,7 +94,7 @@ class UoY_DateHandler
     /**
      * Gets the time at which the term date set being used was last updated.
      * 
-     * @param object $xml The XML object representing the term date set.
+     * @param object $xml The SimpleXMLElement object representing the term date set.
      * 
      * @return integer The update time, as a Unix timestamp. (?)
      */
@@ -107,9 +107,9 @@ class UoY_DateHandler
     /**
      * Adds a year from $src to $dest. (?)
      * 
-     * @param object  $src  The source XML object. (?)
+     * @param object  $src  The source SimpleXMLElement object. (?)
      * @param integer $year The year to copy over.
-     * @param object  $dest The destination XML object. (?) 
+     * @param object  $dest The destination SimpleXMLElement object. (?) 
      * 
      * @return mixed Nothing.
      */
@@ -129,7 +129,7 @@ class UoY_DateHandler
     /**
      * Gets a list of trusted sources from the term date set. (?)
      * 
-     * @param object $xml The XML object representing the term date set.
+     * @param object $xml The SimpleXMLElement object representing the term date set.
      * 
      * @return array A list of trusted sources. (?)
      */
@@ -146,7 +146,7 @@ class UoY_DateHandler
     /**
      * Gets a list of sources from the term date set. (?)
      * 
-     * @param object $xml The XML object representing the term date set.
+     * @param object $xml The SimpleXMLElement object representing the term date set.
      * 
      * @return array A list of all sources. (?)
      */
@@ -165,7 +165,7 @@ class UoY_DateHandler
      *
      * @param integer $time The new update time of the cache.
      * 
-     * @param object  $xml  The XML object of the cache.
+     * @param object  $xml  The SimpleXMLElement object of the cache.
      * 
      * @return mixed Nothing.
      */
@@ -176,9 +176,9 @@ class UoY_DateHandler
     }
 
     /**
-     * Writes to the cache.
+     * Writes to the cache file.
      * 
-     * @param object $tmpxml The cache's XML object.
+     * @param object $tmpxml The cache's SimpleXMLElement object.
      * 
      * @return boolean true if the cache was written to successfully. (?)  
      */
@@ -193,7 +193,7 @@ class UoY_DateHandler
      * Adds a source to the cache.
      * 
      * @param type $trust  ?
-     * @param type $tmpxml ?
+     * @param object $tmpxml The cache's SimpleXMLElement object.
      * 
      * @return mixed Nothing.
      */
