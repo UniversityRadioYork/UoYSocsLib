@@ -1,16 +1,39 @@
 <?php
 /**
+ * UoY_Date class
+ * 
+ * Part of the University of York Society Common Library
+ * 
+ * PHP version 5.3
+ * 
+ * @category UoY
+ * @package  UoY
+ * 
+ * @author   Gareth Andrew Lloyd <gareth@ignition-web.co.uk>
+ * @author   Matt Windsor <mattwindsor@btinternet.com>
+ * 
+ * @license  ? ?
+ * @link     github.com/UniversityRadioYork/University-of-York-Society-Common-Library
+ */
+
+/**
  * University date object.
  * 
- * @author Matt Windsor <mattwindsor@btinternet.com>
+ * @category UoY
+ * @package  UoY
+ * 
+ * @author   Matt Windsor <mattwindsor@btinternet.com>
+ * 
+ * @license  ? ?
+ * @link     github.com/UniversityRadioYork/University-of-York-Society-Common-Library
  */
 class UoY_Date
 {
-    protected $_year;
-    protected $_term;
-    protected $_isBreak;
-    protected $_week;
-    protected $_day;
+    protected $year;
+    protected $term;
+    protected $isBreak;
+    protected $week;
+    protected $day;
     
     /**
      * Constructs a new date.
@@ -24,11 +47,11 @@ class UoY_Date
      */
     public function __construct($year, $term, $isBreak, $week, $day)
     {
-        $this->_year = $year;
-        $this->_term = $term;
-        $this->_isBreak = $isBreak;
-        $this->_week = $week;
-        $this->_day = $day;
+        $this->year = $year;
+        $this->term = $term;
+        $this->isBreak = $isBreak;
+        $this->week = $week;
+        $this->day = $day;
     }
     
     /**
@@ -42,7 +65,7 @@ class UoY_Date
      */
     public function getYear()
     {
-        return $this->_year;
+        return $this->year;
     }
 
     /**
@@ -52,7 +75,7 @@ class UoY_Date
      */
     public function getTerm()
     {
-        return $this->_term;
+        return $this->term;
     }
     
     /**
@@ -63,7 +86,7 @@ class UoY_Date
     public function getTermName()
     {
         if ($this->isInBreak()) {
-            switch ($this->_term) {
+            switch ($this->term) {
             case UoY_DateHandler::BREAK_WINTER:
                 return 'Winter Break';
             case UoY_DateHandler::BREAK_SPRING:
@@ -74,7 +97,7 @@ class UoY_Date
                 throw new LogicException('Invalid term stored in date.');
             }
         } else {
-            switch ($this->_term) {
+            switch ($this->term) {
             case UoY_DateHandler::TERM_AUTUMN:
                 return 'Autumn Term';
             case UoY_DateHandler::TERM_SPRING:
@@ -99,7 +122,7 @@ class UoY_Date
      */
     public function isInBreak()
     {
-        return $this->_isBreak;
+        return $this->isBreak;
     }
     
     /**
@@ -109,7 +132,7 @@ class UoY_Date
      */
     public function getWeek()
     {
-        return $this->_week;
+        return $this->week;
     }
     
     /**
@@ -121,7 +144,7 @@ class UoY_Date
      */
     public function getDay()
     {
-        return $this->_day;
+        return $this->day;
     }
     
     /**
@@ -131,7 +154,7 @@ class UoY_Date
      */
     public function getDayName()
     {
-        switch ($this->_day) {
+        switch ($this->day) {
         case UoY_DateHandler::DAY_MONDAY:
             return 'Monday';
         case UoY_DateHandler::DAY_TUESDAY:

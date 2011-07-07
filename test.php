@@ -9,5 +9,5 @@ echo "Test entire of the 2010-2011-2012 years\n";
 UoY_DateHandler::test();
 
 echo "Test today\n";
-$term_details = UoY_DateHandler::term_info(time());
+$term_details = UoY_DateHandler::termInfo(time());
 print_r($term_details);
