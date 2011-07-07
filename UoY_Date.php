@@ -13,8 +13,10 @@
  * @author   Matt Windsor <mattwindsor@btinternet.com>
  * 
  * @license  ? ?
- * @link     github.com/UniversityRadioYork/University-of-York-Society-Common-Library
+ * @link     https://github.com/UniversityRadioYork/UoYSocsLib
  */
+
+require_once 'UoY_DateConstants.php';
 
 /**
  * University date object.
@@ -87,23 +89,23 @@ class UoY_Date
     {
         if ($this->isInBreak()) {
             switch ($this->term) {
-            case UoY_DateHandler::BREAK_WINTER:
-                return 'Winter Break';
-            case UoY_DateHandler::BREAK_SPRING:
-                return 'Spring Break';
-            case UoY_DateHandler::BREAK_SUMMER:
-                return 'Summer Break';
+            case UoY_DateConstants::BREAK_WINTER:
+                return UoY_DateConstants::NAME_BREAK_WINTER;
+            case UoY_DateConstants::BREAK_SPRING:
+                return UoY_DateConstants::NAME_BREAK_SPRING;
+            case UoY_DateConstants::BREAK_SUMMER:
+                return UoY_DateConstants::NAME_BREAK_SUMMER;
             default:
                 throw new LogicException('Invalid term stored in date.');
             }
         } else {
             switch ($this->term) {
-            case UoY_DateHandler::TERM_AUTUMN:
-                return 'Autumn Term';
-            case UoY_DateHandler::TERM_SPRING:
-                return 'Spring Term';
-            case UoY_DateHandler::TERM_SUMMER:
-                return 'Summer Term';
+            case UoY_DateConstants::TERM_AUTUMN:
+                return UoY_DateConstants::NAME_TERM_AUTUMN;
+            case UoY_DateConstants::TERM_SPRING:
+                return UoY_DateConstants::NAME_TERM_SPRING;
+            case UoY_DateConstants::TERM_SUMMER:
+                return UoY_DateConstants::NAME_TERM_SUMMER;
             default:
                 throw new LogicException('Invalid term stored in date.');
             }
@@ -114,7 +116,7 @@ class UoY_Date
      * Gets whether or not the date is in a break (vacation).
      * 
      * If the date is in a break, the term returned is a constant in the 
-     * UoY_DateHandler::BREAK_xxx series.
+     * UoY_DateConstants::BREAK_xxx series.
      * 
      * @return boolean true if the date refers to a break (and thus the week
      *                 value refers to weeks after the end of the term); false
@@ -139,8 +141,8 @@ class UoY_Date
      * Gets the day.
      * 
      * @return integer The day, which is a value in the range 
-     *                 UoY_DateHandler::DAY_MONDAY through 
-     *                 UoY_DateHandler::DAY_SUNDAY inclusive.
+     *                 UoY_DateConstants::DAY_MONDAY through 
+     *                 UoY_DateConstants::DAY_SUNDAY inclusive.
      */
     public function getDay()
     {
@@ -155,19 +157,19 @@ class UoY_Date
     public function getDayName()
     {
         switch ($this->day) {
-        case UoY_DateHandler::DAY_MONDAY:
+        case UoY_DateConstants::DAY_MONDAY:
             return 'Monday';
-        case UoY_DateHandler::DAY_TUESDAY:
+        case UoY_DateConstants::DAY_TUESDAY:
             return 'Tuesday';
-        case UoY_DateHandler::DAY_WEDNESDAY:
+        case UoY_DateConstants::DAY_WEDNESDAY:
             return 'Wednesday';
-        case UoY_DateHandler::DAY_THURSDAY:
+        case UoY_DateConstants::DAY_THURSDAY:
             return 'Thursday';
-        case UoY_DateHandler::DAY_FRIDAY:
+        case UoY_DateConstants::DAY_FRIDAY:
             return 'Friday';
-        case UoY_DateHandler::DAY_SATURDAY:
+        case UoY_DateConstants::DAY_SATURDAY:
             return 'Saturday';
-        case UoY_DateHandler::DAY_SUNDAY:
+        case UoY_DateConstants::DAY_SUNDAY:
             return 'Sunday';
         default:
             throw new LogicException('Invalid day stored in date.');

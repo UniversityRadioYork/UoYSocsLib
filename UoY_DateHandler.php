@@ -13,7 +13,7 @@
  * @author   Matt Windsor <mattwindsor@btinternet.com>
  * 
  * @license  ? ?
- * @link     github.com/UniversityRadioYork/University-of-York-Society-Common-Library
+ * @link     https://github.com/UniversityRadioYork/UoYSocsLib
  */
 
 require_once 'UoY_Date.php';
@@ -33,81 +33,7 @@ date_default_timezone_set('Europe/London');
  * @link     github.com/UniversityRadioYork/University-of-York-Society-Common-Library
  */
 class UoY_DateHandler
-{
-    // Term identifiers
-    /** Autumn term. */
-    const TERM_AUTUMN = 1;
-    /** Spring term. */
-    const TERM_SPRING = 2;
-    /** Summer term. */
-    const TERM_SUMMER = 3;
-
-    /** 
-     * Lowest valid term identifier.  
-     * 
-     * Any number below this is not a valid term identifier.
-     */
-    const TERM_LOWER_BOUND = self::TERM_AUTUMN;
-  
-    /**
-     * Highest valid term identifier.
-     * 
-     * Any number above this is not a valid term identifier.
-     */
-    const TERM_UPPER_BOUND = self::TERM_SUMMER;
-  
-    // Break identifiers
-    /** Winter break. */
-    const BREAK_WINTER = 1;
-    /** Spring break. */
-    const BREAK_SPRING = 2;
-    /** Summer break. */
-    const BREAK_SUMMER = 3;
-    
-    /** 
-     * Lowest valid break identifier.  
-     * 
-     * Any number below this is not a valid break identifier.
-     */
-    const BREAK_LOWER_BOUND = self::BREAK_WINTER;
-  
-    /**
-     * Highest valid term identifier.
-     * 
-     * Any number above this is not a valid break identifier.
-     */
-    const BREAK_UPPER_BOUND = self::BREAK_SUMMER;
-
-    // Day identifiers
-    /** Monday. */
-    const DAY_MONDAY = 1;
-    /** Tuesday. */
-    const DAY_TUESDAY = 2;
-    /** Wednesday. */
-    const DAY_WEDNESDAY = 3;
-    /** Thursday. */
-    const DAY_THURSDAY = 4;
-    /** Friday. */
-    const DAY_FRIDAY = 5;
-    /** Saturday. */
-    const DAY_SATURDAY = 6;
-    /** Sunday. */
-    const DAY_SUNDAY = 7;
-    
-    /** 
-     * Lowest valid day identifier.  
-     * 
-     * Any number below this is not a valid day identifier.
-     */
-    const DAY_LOWER_BOUND = self::DAY_MONDAY;
-  
-    /**
-     * Highest valid day identifier.
-     * 
-     * Any number above this is not a valid day identifier.
-     */
-    const DAY_UPPER_BOUND = self::DAY_SUNDAY;
-    
+{   
     //variables to change
     protected static $file = 'uoy-term-dates.xml';
     protected static $url = 'localhost';
