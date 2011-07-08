@@ -111,6 +111,11 @@ class UoY_Cache
         }
         return $result;
     }
+    
+    public static function getYearResource($xml, $year)
+    {
+        return $xml->xpath("/uoytermdates/termdates[year=$year]");
+    }
 
     /**
      * Changes the update time of the cache.

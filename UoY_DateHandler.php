@@ -53,14 +53,12 @@ class UoY_DateHandler
             return false; //cache file missing and can't be made
         }
         $tmpxml = UoY_Cache::cacheHandle();
-        //TODO move to UoY_Cache -- no xpath should be in this file
-        $res = $tmpxml->xpath("/uoytermdates/termdates[year=$year]");
-        if (($res == array()) && $update) {
+        $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
+        if (($xmlRes == array()) && $update) {
             UoY_Cache::updateCache();
-            //TODO move to UoY_Cache -- no xpath should be in this file
-            $res = $tmpxml->xpath("/uoytermdates/termdates[year=$year]");
+            $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
         }
-        return $res != array(); //no year exist in xml even after update
+        return $xmlRes != array(); //no year exist in xml even after update
     }
 
     /**
@@ -110,11 +108,10 @@ class UoY_DateHandler
             return false;
         }
         $tmpxml = UoY_Cache::cacheHandle();
-        //TODO move to UoY_Cache -- no xpath should be in this file
-        $res = $tmpxml->xpath("/uoytermdates/termdates[year=$year]");
+        $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
         $feature[] = @strtotime("1st September $year");//inclusive
         $feature[] = @strtotime("1st September " . ($year + 1));//exclusive
-        foreach ($res[0]->term as $t) {
+        foreach ($xmlRes[0]->term as $t) {
             $feature[] = self::floorMonday($t->start);//inclusive
             $feature[] = @strtotime("next Monday ".($t->end));//exclusive
         }
