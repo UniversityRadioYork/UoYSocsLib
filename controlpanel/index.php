@@ -21,7 +21,7 @@
 	<link rel="shortcut icon" href="/favicon.ico">
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 	<!--<link type="text/css" rel="stylesheet" href="css/style.css?v=2" />-->
-	<link type="text/css" rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.14.custom.css" />
+	<link type="text/css" rel="stylesheet" href="css/smoothness/jquery-ui-1.8.14.custom.css" />
 
 	<script type="text/javascript" src="js/libs/jquery-1.5.1.min.js"></script>
 	<script type="text/javascript" src="js/libs/jquery-ui-1.8.14.custom.min.js"></script>
