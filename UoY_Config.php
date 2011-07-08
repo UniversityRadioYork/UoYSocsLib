@@ -9,7 +9,7 @@ class UoY_Config
 
   public static function localFile() 
   {
-    return self::CACHE_LOCAL_DIR .'/'. self::CACHE_FILE_NAME;
+		return dirname(__FILE__).'/'.self::CACHE_LOCAL_DIR .'/'. self::CACHE_FILE_NAME;
   }
 
   public static function urlFile()

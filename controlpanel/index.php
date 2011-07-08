@@ -2,6 +2,8 @@
 
 //Authentication code here
 
+require_once '../UoY_Cache.php';
+
 ?><!doctype html>
 <!--[if lt IE 7 ]> <html lang="en" class="ie6"> <![endif]-->
 <!--[if IE 7 ]>    <html lang="en" class="ie7"> <![endif]-->
@@ -27,6 +29,20 @@
 	<script type="text/javascript" src="js/libs/jquery-ui-1.8.14.custom.min.js"></script>
 	<script type="text/javascript" src="js/libs/modernizr-1.7.min.js"></script>
 </head>
+<style type="text/css">
+  table {
+		border-collapse:collapse;
+    font-size:1em;
+		width:100%;
+  }
+  th,td {
+    padding:0.5em;
+		border: 1px solid #ddd;
+  }
+	th {
+    font-weight:bold;
+  }
+</style>
 <body>
 	<div id="container">
 		<header>
@@ -41,7 +57,47 @@
 					<li><a href="#tabs-3">Help</a></li>
 				</ul>
 				<div id="tabs-1">
-					<p>Tab 1 content</p>
+					<table id="termdates" class="ui-widget">
+						<thead>
+							<tr>
+								<th class="ui-widget-header">Year</th>
+								<th class="ui-widget-header">Autumn start</th>
+								<th class="ui-widget-header">Autumn end</th>
+								<th class="ui-widget-header">Spring start</th>
+								<th class="ui-widget-header">Spring end</th>
+								<th class="ui-widget-header">Summer start</th>
+								<th class="ui-widget-header">Summer end</th>
+								<th class="ui-widget-header">Options</th>
+							</tr>
+						</thead>
+            <tbody>
+<?php
+	$xml = UoY_Cache::cacheHandle();
+	$res = $xml->xpath("/uoytermdates/termdates");
+	foreach ($res as $td ) {
+		$row = array();
+		$row[] = (string )$td->year;
+		$res2 = $td->term;
+		foreach ($res2 as $t) {
+			$row[] = $t->start;
+			$row[] = $t->end;
+		}
+?>
+							<tr>
+								<td class="ui-waidget-content"><?php echo $row[0]; ?></td>
+								<td class="ui-waidget-content"><?php echo $row[1]; ?></td>
+								<td class="ui-waidget-content"><?php echo $row[2]; ?></td>
+								<td class="ui-waidget-content"><?php echo $row[3]; ?></td>
+								<td class="ui-waidget-content"><?php echo $row[4]; ?></td>
+								<td class="ui-waidget-content"><?php echo $row[5]; ?></td>
+								<td class="ui-waidget-content"><?php echo $row[6]; ?></td>
+								<td class="ui-waidget-content">&nbsp;</td>
+							</tr>
+<?php
+ }
+?>
+						</tbody>
+					</table>
 				</div>
 				<div id="tabs-2">
 					<p>Tab 2 content</p>

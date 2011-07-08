@@ -53,6 +53,9 @@ class UoY_DateHandler
             return false; //cache file missing and can't be made
         }
         $tmpxml = UoY_Cache::cacheHandle();
+				if (!$tmpxml) {
+					return false;
+				}
         $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
         if (($xmlRes == array()) && $update) {
             UoY_Cache::updateCache();
@@ -108,6 +111,9 @@ class UoY_DateHandler
             return false;
         }
         $tmpxml = UoY_Cache::cacheHandle();
+        if (!$tmpxml){
+					return false;
+				}
         $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
         $feature[] = @strtotime("1st September $year");//inclusive
         $feature[] = @strtotime("1st September " . ($year + 1));//exclusive
