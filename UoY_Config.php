@@ -1,5 +1,6 @@
 <?php
-class UoY_Config {
+class UoY_Config 
+{
   // Cache file //
   const CACHE_FILE_NAME = 'UoYCache.xml';
   const CACHE_URL_DIR = 'localhost';
