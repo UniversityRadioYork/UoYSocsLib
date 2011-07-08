@@ -2,12 +2,9 @@
 
 require_once 'UoY_DateHandler.php';
 
-//$dh = new UoY_DateHandler();
-//$dh->test();
-
 echo "Test entire of the 2010-2011-2012 years\n";
 UoY_DateHandler::test();
 
 echo "Test today\n";
 $term_details = UoY_DateHandler::termInfo(time());
-print_r($term_details);
+echo $term_details->toString();
