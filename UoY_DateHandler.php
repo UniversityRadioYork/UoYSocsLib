@@ -1,6 +1,6 @@
 <?php
 /**
- * UoY_Date class
+ * UoY_DateHandler class
  * 
  * Part of the University of York Society Common Library
  * 

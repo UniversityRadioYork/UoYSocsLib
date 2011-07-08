@@ -1,7 +1,35 @@
 <?php
+/**
+ * UoY_Cache class
+ *
+ * Part of the University of York Society Common Library
+ *
+ * PHP version 5.3
+ *
+ * @category UoY
+ * @package UoY
+ *
+ * @author Gareth Andrew Lloyd <gareth@ignition-web.co.uk>
+ *
+ * @license ? ?
+ * @link https://github.com/UniversityRadioYork/UoYSocsLib
+ */
 
 require_once 'UoY_Config.php';
 
+date_default_timezone_set('Europe/London');
+
+/**
+ * Class for handling the XML Cache file.
+ *
+ * @category UoY
+ * @package UoY
+ *
+ * @author Gareth Andrew Lloyd <gareth@ignition-web.co.uk>
+ *
+ * @license ? ?
+ * @link github.com/UniversityRadioYork/University-of-York-Society-Common-Library
+ */
 class UoY_Cache 
 {
     /**
@@ -68,7 +96,6 @@ class UoY_Cache
     protected static function copyYearData($src, $year, $dest)
     {
         //TODO add validation
-        //MAYBE rename to copy_year_data
         $res = $src->xpath("/uoytermdates/termdates[year=$year]");
         $data = dom_import_simplexml($res[0]);
         $dom = dom_import_simplexml($dest);
@@ -128,7 +155,6 @@ class UoY_Cache
      */
     protected static function setUpdatedTime($time, $xml)
     {
-        //MAYBE rename to set_updated_time
         $xml->updated[0] = @date('Y-m-d\TH:i:sP', $time);
     }
 
