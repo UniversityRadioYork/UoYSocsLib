@@ -17,6 +17,7 @@
  */
 
 require_once 'UoY_Date.php';
+require_once 'UoY_Config.php';
 
 date_default_timezone_set('Europe/London');
 
@@ -34,23 +35,6 @@ date_default_timezone_set('Europe/London');
  */
 class UoY_DateHandler
 {   
-    //variables to change
-    protected static $file = 'uoy-term-dates.xml';
-    protected static $url = 'localhost';
-    protected static $localdir = 'xml';
-    protected static $bootloader = 'http://ury.york.ac.uk/xml/uoy-term-dates.xml';
-
-    /**
-     * Constructs a new UoY_DateHandler.
-     * 
-     * TODO: This is a static class, so this should be moved somewhere else.
-     */
-    public function __construct()
-    {
-        if (!defined('STDIN')) {
-            self::$localdir = $_SERVER['DOCUMENT_ROOT'] . '/xml';
-        }
-    }
 
     /**
      * Bootloads the system by copying a trusted 
@@ -59,9 +43,9 @@ class UoY_DateHandler
      */
     protected static function bootloadFile()
     {
-        $dest = self::$localdir . '/' . self::$file;
-        if (!file_exists(self::$localdir)) {
-            $res = mkdir(self::$localdir, 0770, true);
+        $dest = UoY_Config::localFile();
+        if (!file_exists(UoY_Config::CACHE_LOCAL_DIR)) {
+            $res = mkdir(UoY_Config::CACHE_LOCAL_DIR, 0770, true);
             if (!$res) {
                 return false;
             }
@@ -70,7 +54,7 @@ class UoY_DateHandler
         if (!$res) {
             return false; //local file doesn't exist
         }
-        return copy(self::$bootloader, $dest);
+        return copy(UoY_Config::CACHE_BOOTLOADER, $dest);
     }
 
     /**
@@ -185,7 +169,7 @@ class UoY_DateHandler
     protected static function writeToCache($tmpxml)
     {
         return file_put_contents(
-            self::$localdir . '/' . self::$file, $tmpxml->asXML()
+            UoY_Config::localFile(), $tmpxml->asXML()
         );
     }
 
@@ -211,9 +195,7 @@ class UoY_DateHandler
      */
     protected static function cacheExists()
     {
-        $file = self::$file;
-        $localdir = self::$localdir;
-        if (!file_exists("$localdir/$file")) {
+        if (!file_exists(UoY_Config::localFile())) {
             return self::bootloadFile();
         }
         return true;
@@ -226,15 +208,12 @@ class UoY_DateHandler
      */
     public static function updateCache()
     {
-        $url = self::$url;
-        $file = self::$file;
-        $localdir = self::$localdir;
         
         if (!self::cacheExists()) {
             return false; //cache file missing and can't be made
         }
 
-        $tmpxml = simplexml_load_file("$localdir/$file");
+        $tmpxml = simplexml_load_file(UoY_Config::localFile());
 
         $sources = self::getTrustedSources($tmpxml);
         $lastupdate = self::getUpdatedTime($tmpxml);
@@ -243,7 +222,7 @@ class UoY_DateHandler
         $sourceslist = $sources;
         $updated = false;
         foreach ($sources as $f) {
-            if ($f != "http://$url/$file") {
+            if ($f != UoY_Config::urlFile()) {
                 $xml = @simplexml_load_file($f);
                 if (!$xml) {
                     break; //remote file doesn't exist
@@ -296,9 +275,7 @@ class UoY_DateHandler
         if (!self::cacheExists()) {
             return false; //cache file missing and can't be made
         }
-        $ld = self::$localdir;
-        $file = self::$file;
-        $tmpxml = simplexml_load_file("$ld/$file");
+        $tmpxml = simplexml_load_file(UoY_Config::localFile());
         $res = $tmpxml->xpath("/uoytermdates/termdates[year=$year]");
         if (($res == array()) && $update) {
             self::updateCache();
@@ -349,13 +326,11 @@ class UoY_DateHandler
      */
     public static function termInfo($date)
     {
-        $ld = self::$localdir;
-        $file = self::$file;
         $year = self::yearNumber($date);
         if (!self::yearExists($year, true)) {
             return false;
         }
-        $tmpxml = simplexml_load_file("$ld/$file");
+        $tmpxml = simplexml_load_file(UoY_Config::localFile());
         $res = $tmpxml->xpath("/uoytermdates/termdates[year=$year]");
         $feature[] = @strtotime("1st September $year");//inclusive
         $feature[] = @strtotime("1st September " . ($year + 1));//exclusive
