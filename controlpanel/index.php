@@ -16,13 +16,12 @@ require_once '../UoY_Cache.php';
 	
 	<title></title>
 	<meta name="description" content="">
-	<meta name="author" content="">
+	<meta name="author" content="Gareth Andrew Lloyd <gareth@ignition-web.co.uk>">
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
 	<link rel="shortcut icon" href="/favicon.ico">
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-	<!--<link type="text/css" rel="stylesheet" href="css/style.css?v=2" />-->
 	<link type="text/css" rel="stylesheet" href="css/smoothness/jquery-ui-1.8.14.custom.css" />
 
 	<script type="text/javascript" src="js/libs/jquery-1.5.1.min.js"></script>
@@ -38,10 +37,14 @@ require_once '../UoY_Cache.php';
   th,td {
     padding:0.5em;
 		border: 1px solid #ddd;
+		text-align:right;
   }
 	th {
     font-weight:bold;
   }
+	input {
+		width:100%;
+	}
 </style>
 <body>
 	<div id="container">
@@ -60,47 +63,79 @@ require_once '../UoY_Cache.php';
 					<table id="termdates" class="ui-widget">
 						<thead>
 							<tr>
-								<th class="ui-widget-header">Year</th>
-								<th class="ui-widget-header">Autumn start</th>
-								<th class="ui-widget-header">Autumn end</th>
-								<th class="ui-widget-header">Spring start</th>
-								<th class="ui-widget-header">Spring end</th>
-								<th class="ui-widget-header">Summer start</th>
-								<th class="ui-widget-header">Summer end</th>
-								<th class="ui-widget-header">Options</th>
+								<th style="width:6%" class="ui-widget-header">Year</th>
+								<th style="width:12%" class="ui-widget-header">Autumn start</th>
+								<th style="width:12%" class="ui-widget-header">Autumn end</th>
+								<th style="width:12%" class="ui-widget-header">Spring start</th>
+								<th style="width:12%" class="ui-widget-header">Spring end</th>
+								<th style="width:12%" class="ui-widget-header">Summer start</th>
+								<th style="width:12%" class="ui-widget-header">Summer end</th>
+								<th style="width:22%" class="ui-widget-header">Options</th>
 							</tr>
 						</thead>
             <tbody>
 <?php
 	$xml = UoY_Cache::cacheHandle();
+	function ordByYear($a, $b) {
+		if (((int)$a->year) == ((int)$b->year)) return 0;
+		return ((int)$a->year) < ((int)$b->year)?-1:1;
+	}
 	$res = $xml->xpath("/uoytermdates/termdates");
+	usort($res,"ordByYear");
 	foreach ($res as $td ) {
 		$row = array();
-		$row[] = (string )$td->year;
+		$row[] = (int)$td->year;
 		$res2 = $td->term;
 		foreach ($res2 as $t) {
 			$row[] = $t->start;
 			$row[] = $t->end;
 		}
 ?>
-							<tr>
+							<tr id="y<?php echo $row[0]; ?>">
 								<td class="ui-waidget-content"><?php echo $row[0]; ?></td>
-								<td class="ui-waidget-content"><?php echo $row[1]; ?></td>
-								<td class="ui-waidget-content"><?php echo $row[2]; ?></td>
-								<td class="ui-waidget-content"><?php echo $row[3]; ?></td>
-								<td class="ui-waidget-content"><?php echo $row[4]; ?></td>
-								<td class="ui-waidget-content"><?php echo $row[5]; ?></td>
-								<td class="ui-waidget-content"><?php echo $row[6]; ?></td>
-								<td class="ui-waidget-content">&nbsp;</td>
+								<td class="ui-waidget-content"><input value="<?php echo $row[1]; ?>"/></td>
+								<td class="ui-waidget-content"><input value="<?php echo $row[2]; ?>"/></td>
+								<td class="ui-waidget-content"><input value="<?php echo $row[3]; ?>"/></td>
+								<td class="ui-waidget-content"><input value="<?php echo $row[4]; ?>"/></td>
+								<td class="ui-waidget-content"><input value="<?php echo $row[5]; ?>"/></td>
+								<td class="ui-waidget-content"><input value="<?php echo $row[6]; ?>"/></td>
+								<td class="ui-waidget-content"><a class="update" href="#">Update</a><a class="del" href="#">Delete</a></td>
 							</tr>
 <?php
  }
 ?>
+							<tr id="ynew">
+								<td class="ui-waidget-content"><input/></td>
+								<td class="ui-waidget-content"><input/></td>
+								<td class="ui-waidget-content"><input/></td>
+								<td class="ui-waidget-content"><input/></td>
+								<td class="ui-waidget-content"><input/></td>
+								<td class="ui-waidget-content"><input/></td>
+								<td class="ui-waidget-content"><input/></td>
+								<td class="ui-waidget-content"><a class="add" href="#">Add</a></td>
+							</tr>
 						</tbody>
 					</table>
 				</div>
 				<div id="tabs-2">
-					<p>Tab 2 content</p>
+					<table id="sources" class="ui-widget">
+						<thead>
+							<tr>
+								<th style="width:70%" class="ui-widget-header">URL</th>
+								<th style="width:12%" class="ui-widget-header">Trusted?</th>
+								<th style="width:18%" class="ui-widget-header">Options</th>
+							</tr>
+						</thead>
+            <tbody>
+<?php
+
+?>
+
+<?php
+
+?>
+						</tbody>
+					</table>
 				</div>
 				<div id="tabs-3">
 					<p>Tab 3 content</p>
