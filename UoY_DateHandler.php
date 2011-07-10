@@ -159,7 +159,7 @@ class UoY_DateHandler
             intval($termnum) === 0 ? intval($breaknum) : intval($termnum),
             (intval($termnum) === 0), // Whether or not this is a break
             intval($weeknum),
-            intval(date('N', $date)) // Day
+            intval($date) 
         );
     }
 

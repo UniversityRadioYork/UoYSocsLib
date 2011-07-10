@@ -35,7 +35,7 @@ class UoY_Date
     protected $term;
     protected $isBreak;
     protected $week;
-    protected $day;
+    protected $epoch;
     
     /**
      * Constructs a new date.
@@ -45,13 +45,13 @@ class UoY_Date
      * @param boolean $isBreak Whether or not the date belongs to a break
      *                         instead of a term.
      * @param integer $week    The week of the term or break.
-     * @param integer $day     The day of the week.
+     * @param integer $epoch   The unix timestamp.
      * 
      * @throws InvalidArgumentException if the types are incorrect.
      * @throws OutOfBoundsException     if any variable is outside its 
      *                                  expected range.
      */
-    public function __construct($year, $term, $isBreak, $week, $day)
+    public function __construct($year, $term, $isBreak, $week, $epoch)
     {
         // Type checks
         if (is_integer($year) === false) {
@@ -60,8 +60,8 @@ class UoY_Date
             throw new InvalidArgumentException('Term must be an integer.');
         } else if (is_integer($week) === false) {
             throw new InvalidArgumentException('Week must be an integer.');
-        } else if (is_integer($day) === false) {
-            throw new InvalidArgumentException('Day must be an integer.');
+        //} else if (is_integer($day) === false) {
+        //    throw new InvalidArgumentException('Day must be an integer.');
         } else if (is_bool($isBreak) === false) {
             throw new InvalidArgumentException('isBreak must be an boolean.');
         }
@@ -83,17 +83,17 @@ class UoY_Date
         if ($week < 1) {
             throw new OutOfBoundsException('Week must be positive.');
         }
-        if ($day < UoY_DateConstants::DAY_LOWER_BOUND) {
-            throw new OutOfBoundsException('Day ID is too low.');
-        } else if ($day > UoY_DateConstants::DAY_UPPER_BOUND) {
-            throw new OutOfBoundsException('Day ID is too high.');
-        }
+        //if ($day < UoY_DateConstants::DAY_LOWER_BOUND) {
+        //    throw new OutOfBoundsException('Day ID is too low.');
+        //} else if ($day > UoY_DateConstants::DAY_UPPER_BOUND) {
+        //    throw new OutOfBoundsException('Day ID is too high.');
+        //}
         
         $this->year = $year;
         $this->term = $term;
         $this->isBreak = $isBreak;
         $this->week = $week;
-        $this->day = $day;
+        $this->epoch = $epoch;
     }
     
     /**
@@ -186,7 +186,7 @@ class UoY_Date
      */
     public function getDay()
     {
-        return $this->day;
+        return intval(date('N', $this->epoch));
     }
     
     /**
@@ -196,7 +196,7 @@ class UoY_Date
      */
     public function getDayName()
     {
-        switch ($this->day) {
+        switch ($this->getDay()) {
         case UoY_DateConstants::DAY_MONDAY:
             return 'Monday';
         case UoY_DateConstants::DAY_TUESDAY:
@@ -214,6 +214,11 @@ class UoY_Date
         default:
             throw new LogicException('Invalid day stored in date.');
         }
+    }
+
+    public function getEpoch() 
+    {
+        return $this->epoch;
     }
     
     /**
