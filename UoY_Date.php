@@ -82,41 +82,21 @@ class UoY_Date extends DateTime
     /**
      * Returns the academic year of the given date.
      * 
-     * @param integer $date The date, as a Unix timestamp.
-     * 
      * @return integer The academic year of the given date, as defined as the
      *                 calendar year upon which Monday Week 1 Autumn falls.
      */
     protected function getYearNum()
     {
         // assumption 01-Sept is the earliest academic year start
+        //TODO convert to DateTime
         return @date("Y", $this->getTimestamp() - @strtotime("1st September 1970"));
     }
 
-		public function getYear()	
-		{
+    public function getYear()	
+   {
         if (!$this->update()) return false;
-				return $this->year;
-			
-		}
-
-    /**
-     * Floors the given date string to the previous Monday. (?)
-     * 
-     * @param string $datestr A string representing the date.
-     * 
-     * @return integer A Unix timestamp representing the floored date. 
-     */
-    protected static function floorMonday($datestr)
-    {
-        $prevMon = @strtotime("last Monday" . $datestr);
-        $m1week = @strtotime($datestr . " -1 week");
-        if ($prevMon == $m1week) {
-            return @strtotime($datestr);
-        } else {
-            return $prevMon;
-        }
-    }
+        return $this->year;
+   }
 
     protected function update()
     {
@@ -130,17 +110,30 @@ class UoY_Date extends DateTime
             }
             $tmpxml = UoY_Cache::cacheHandle();
             $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
-            $feature[] = @strtotime("1st September $year");//inclusive
-            $feature[] = @strtotime("1st September " . ($year + 1));//exclusive
+            $feature[] = new UoY_Date("1st September $year");//inclusive
+            $feature[] = new UoY_Date("1st September " . ($year + 1));//exclusive
+            
             foreach ($xmlRes[0]->term as $t) {
-                $feature[] = self::floorMonday($t->start);//inclusive
-                $feature[] = @strtotime("next Monday ".($t->end));//exclusive
+                //inclusive
+                $prevMon = new UoY_Date("last Monday " . ($t->start));
+                $m1week = new UoY_Date(($t->start) . " -1 week");
+                if ($prevMon == $m1week) {
+                  $feature[] = new UoY_Date($t->start);
+                } else {
+                  $feature[] = $prevMon;
+                }
+                //exclusive
+                $feature[] = new UoY_Date("next Monday " . ($t->end));
             }
-            sort($feature, SORT_NUMERIC);
+            usort($feature, function($a,$b){
+              if ($a->getTimestamp() == $b->getTimestamp()) 
+              return 0; 
+              return ($a->getTimestamp()) > ($b->getTimestamp()) ? +1 : -1;
+            });
             //TODO rename to ??? $term isn't correct
             $term = 0;
             for ($i = 0; $i < count($feature) - 1; $i = $i + 1) {
-                if (($date >= $feature[$i]) && ($date < $feature[$i + 1])) {
+                if (($this >= $feature[$i]) && ($this < $feature[$i + 1])) {
                     $term = $i;
                     break;
                 }
@@ -153,20 +146,16 @@ class UoY_Date extends DateTime
             //5 - term 3
             //6 - $year summer break
             if ($term != 0) {
-                $relativetoterm = $date - $feature[$term];
-                $relativetoterm /= 60 * 60 * 24 * 7;
-                $week = (int) $relativetoterm + 1;
+                $relativetoterm = $this->diff($feature[$term]);
+                $week = ((int) $relativetoterm->days / 7) + 1;
             } else {
-                $start = @strtotime("31st August " . $year);
-                $weekdayoffset = @strtotime("last Monday", $start);
-                $term_details = new UoY_Date;
-                $term_details->setTimestamp($weekdayoffset);
-                if (!$term_details->getWeek()) {
+                $weekdayoffset = new UoY_Date("31st August " . $year);
+                $weekdayoffset->modify("last Monday");
+                if (!$weekdayoffset->getWeek()) {
                     $week = false; //can't infer any information for the week number
                 } else {
-                    $relativetoterm = $date - $weekdayoffset;
-                    $relativetoterm /= 60 * 60 * 24 * 7;
-                    $week = (int) $relativetoterm + $term_details->getWeek();
+                    $relativetoterm = $this->diff($weekdayoffset);
+                    $week = ((int) $relativetoterm->days / 7) + $weekdayoffset->getWeek();
                 }
             }
             $weeknum = $week;
@@ -177,7 +166,7 @@ class UoY_Date extends DateTime
             }
             $yearnum = ($term != 0) ? $year : $year - 1;
             //update values
-						$this->year = $yearnum;
+            $this->year = $yearnum;
             $this->term = intval($termnum) === 0 ? intval($breaknum) : intval($termnum);
             $this->isBreak = (intval($termnum) === 0);
             if ($weeknum === false) {
@@ -185,7 +174,7 @@ class UoY_Date extends DateTime
             } else {
                 $this->week = intval($weeknum);
             }
-            $this->lastEpoch = $currentEpoch;
+            $this->lastEpoch = $this->getTimestamp();
         }
         return true;
     }
@@ -246,7 +235,7 @@ class UoY_Date extends DateTime
      */
     public function isInBreak()
     {
-				if (!$this->update()) return false;
+        if (!$this->update()) return false;
         return $this->isBreak;
     }
     
@@ -270,6 +259,7 @@ class UoY_Date extends DateTime
      */
     public function getDay()
     {
+        //TODO convert to DateTime
         return intval(date('N', $this->getTimestamp()));
     }
     
