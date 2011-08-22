@@ -36,6 +36,7 @@ class UoY_Date extends DateTime
 {
 
     protected $term;
+    protected $year;
     protected $isBreak;
     protected $week;
     protected $lastEpoch;
@@ -86,11 +87,18 @@ class UoY_Date extends DateTime
      * @return integer The academic year of the given date, as defined as the
      *                 calendar year upon which Monday Week 1 Autumn falls.
      */
-    public function getYear()
+    protected function getYearNum()
     {
         // assumption 01-Sept is the earliest academic year start
         return @date("Y", $this->getTimestamp() - @strtotime("1st September 1970"));
     }
+
+		public function getYear()	
+		{
+        if (!$this->update()) return false;
+				return $this->year;
+			
+		}
 
     /**
      * Floors the given date string to the previous Monday. (?)
@@ -116,7 +124,7 @@ class UoY_Date extends DateTime
         if ($this->lastEpoch != $currentEpoch)
         {
             $date = $currentEpoch;
-            $year = $this->getYear();
+            $year = $this->getYearNum();
             if (!UoY_Cache::yearExists($year, true)) {
                 return false;
             }
@@ -169,6 +177,7 @@ class UoY_Date extends DateTime
             }
             $yearnum = ($term != 0) ? $year : $year - 1;
             //update values
+						$this->year = $yearnum;
             $this->term = intval($termnum) === 0 ? intval($breaknum) : intval($termnum);
             $this->isBreak = (intval($termnum) === 0);
             if ($weeknum === false) {
