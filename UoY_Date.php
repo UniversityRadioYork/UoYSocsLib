@@ -100,10 +100,8 @@ class UoY_Date extends DateTime
 
     protected function update()
     {
-        $currentEpoch = $this->getTimestamp();
-        if ($this->lastEpoch != $currentEpoch)
+        if ($this->lastEpoch != $this->getTimestamp())
         {
-            $date = $currentEpoch;
             $year = $this->getYearNum();
             if (!UoY_Cache::yearExists($year, true)) {
                 return false;
