@@ -13,7 +13,7 @@
  * @author   Matt Windsor <mattwindsor@btinternet.com>
  * 
  * @license  ? ?
- * @link     github.com/UniversityRadioYork/University-of-York-Society-Common-Library
+ * @link     https://github.com/UniversityRadioYork/UoYSocsLib
  */
 
 /**

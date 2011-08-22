@@ -17,6 +17,9 @@
  */
 
 require_once 'UoY_DateConstants.php';
+require_once 'UoY_Cache.php';
+
+date_default_timezone_set('Europe/London');
 
 /**
  * University date object.
@@ -27,32 +30,17 @@ require_once 'UoY_DateConstants.php';
  * @author   Matt Windsor <mattwindsor@btinternet.com>
  * 
  * @license  ? ?
- * @link     github.com/UniversityRadioYork/University-of-York-Society-Common-Library
+ * @link     https://github.com/UniversityRadioYork/UoYSocsLib
  */
-class UoY_Date
+class UoY_Date extends DateTime
 {
-    protected $year;
+
     protected $term;
     protected $isBreak;
     protected $week;
-    protected $epoch;
+    protected $lastEpoch;
     
-    /**
-     * Constructs a new date.
-     * 
-     * @param integer $year    The year of the date.
-     * @param integer $term    The term or break of the date.
-     * @param boolean $isBreak Whether or not the date belongs to a break
-     *                         instead of a term.
-     * @param integer $week    The week of the term or break.
-     * @param integer $epoch   The unix timestamp.
-     * 
-     * @throws InvalidArgumentException if the types are incorrect.
-     * @throws OutOfBoundsException     if any variable is outside its 
-     *                                  expected range.
-     */
-    public function __construct($year, $term, $isBreak, $week, $epoch)
-    {
+    /*
         // Type checks
         if (is_integer($year) === false) {
             throw new InvalidArgumentException('Year must be an integer.');
@@ -88,26 +76,109 @@ class UoY_Date
         //} else if ($day > UoY_DateConstants::DAY_UPPER_BOUND) {
         //    throw new OutOfBoundsException('Day ID is too high.');
         //}
-        
-        $this->year = $year;
-        $this->term = $term;
-        $this->isBreak = $isBreak;
-        $this->week = $week;
-        $this->epoch = $epoch;
-    }
+    */
     
     /**
-     * Gets the year.
+     * Returns the academic year of the given date.
      * 
-     * The year is the calendar year on which Monday, Week 1 Autumn falls
-     * (ie, the first of the two years in 'Year xx/yy'; for Year 2010/11, this
-     * would return 2010).
+     * @param integer $date The date, as a Unix timestamp.
      * 
-     * @return integer The year.
+     * @return integer The academic year of the given date, as defined as the
+     *                 calendar year upon which Monday Week 1 Autumn falls.
      */
     public function getYear()
     {
-        return $this->year;
+        // assumption 01-Sept is the earliest academic year start
+        return @date("Y", $this->getTimestamp() - @strtotime("1st September 1970"));
+    }
+
+    /**
+     * Floors the given date string to the previous Monday. (?)
+     * 
+     * @param string $datestr A string representing the date.
+     * 
+     * @return integer A Unix timestamp representing the floored date. 
+     */
+    protected static function floorMonday($datestr)
+    {
+        $prevMon = @strtotime("last Monday" . $datestr);
+        $m1week = @strtotime($datestr . " -1 week");
+        if ($prevMon == $m1week) {
+            return @strtotime($datestr);
+        } else {
+            return $prevMon;
+        }
+    }
+
+    protected function update()
+    {
+        $currentEpoch = $this->getTimestamp();
+        if ($this->lastEpoch != $currentEpoch)
+        {
+            $date = $currentEpoch;
+            $year = $this->getYear();
+            if (!UoY_Cache::yearExists($year, true)) {
+                return false;
+            }
+            $tmpxml = UoY_Cache::cacheHandle();
+            $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
+            $feature[] = @strtotime("1st September $year");//inclusive
+            $feature[] = @strtotime("1st September " . ($year + 1));//exclusive
+            foreach ($xmlRes[0]->term as $t) {
+                $feature[] = self::floorMonday($t->start);//inclusive
+                $feature[] = @strtotime("next Monday ".($t->end));//exclusive
+            }
+            sort($feature, SORT_NUMERIC);
+            //TODO rename to ??? $term isn't correct
+            $term = 0;
+            for ($i = 0; $i < count($feature) - 1; $i = $i + 1) {
+                if (($date >= $feature[$i]) && ($date < $feature[$i + 1])) {
+                    $term = $i;
+                    break;
+                }
+            }
+            //0 - $year-1 summer break
+            //1 - term 1
+            //2 - $year christmas break
+            //3 - term 2
+            //4 - $year easter break
+            //5 - term 3
+            //6 - $year summer break
+            if ($term != 0) {
+                $relativetoterm = $date - $feature[$term];
+                $relativetoterm /= 60 * 60 * 24 * 7;
+                $week = (int) $relativetoterm + 1;
+            } else {
+                $start = @strtotime("31st August " . $year);
+                $weekdayoffset = @strtotime("last Monday", $start);
+                $term_details = new UoY_Date;
+                $term_details->setTimestamp($weekdayoffset);
+                if (!$term_details->getWeek()) {
+                    $week = false; //can't infer any information for the week number
+                } else {
+                    $relativetoterm = $date - $weekdayoffset;
+                    $relativetoterm /= 60 * 60 * 24 * 7;
+                    $week = (int) $relativetoterm + $term_details->getWeek();
+                }
+            }
+            $weeknum = $week;
+            $termnum = (($term % 2) == 1) ? ($term + 1) / 2 : 0;
+            $breaknum = (($term % 2) == 0) ? ($term) / 2 : 0;
+            if ($term == 0) {
+                $breaknum = 3;
+            }
+            $yearnum = ($term != 0) ? $year : $year - 1;
+            //update values
+            $this->term = intval($termnum) === 0 ? intval($breaknum) : intval($termnum);
+            $this->isBreak = (intval($termnum) === 0);
+            if ($weeknum === false) {
+                $this->week = false; 
+            } else {
+                $this->week = intval($weeknum);
+            }
+            $this->lastEpoch = $currentEpoch;
+        }
+        return true;
     }
 
     /**
@@ -117,6 +188,7 @@ class UoY_Date
      */
     public function getTerm()
     {
+        if (!$this->update()) return false;
         return $this->term;
     }
     
@@ -127,6 +199,7 @@ class UoY_Date
      */
     public function getTermName()
     {
+        if (!$this->update()) return false;
         if ($this->isInBreak()) {
             switch ($this->term) {
             case UoY_DateConstants::BREAK_WINTER:
@@ -164,6 +237,7 @@ class UoY_Date
      */
     public function isInBreak()
     {
+				if (!$this->update()) return false;
         return $this->isBreak;
     }
     
@@ -174,7 +248,8 @@ class UoY_Date
      */
     public function getWeek()
     {
-        return $this->week;
+        if (!$this->update()) return false;
+        return $this->week; //maybe false if update couldn't work it out
     }
     
     /**
@@ -186,7 +261,7 @@ class UoY_Date
      */
     public function getDay()
     {
-        return intval(date('N', $this->epoch));
+        return intval(date('N', $this->getTimestamp()));
     }
     
     /**
@@ -216,11 +291,6 @@ class UoY_Date
         }
     }
 
-    public function getEpoch() 
-    {
-        return $this->epoch;
-    }
-    
     /**
      * Gets a string representation of the date.
      * 
@@ -229,12 +299,37 @@ class UoY_Date
      */
     public function toString()
     {
+        if (!$this->update()) return false;
+        $weekvalue = $this->getWeek();
+        if ($weekvalue === false) $weekvalue = '??';
         return ($this->getDayName()
-                . ' Week ' . $this->getWeek()
+                . ' Week ' . $weekvalue
                 . ', ' . $this->getTermName()
                 . ' ' . $this->getYear() 
                 . '/' . (($this->getYear() + 1) % 100)
                 );
+    }
+
+    /**
+     * Function used to test the date handler.
+     * 
+     * @return nothing.
+     */
+    public static function test()
+    {
+        $day = @strtotime("1st September 2010");
+        $obj = new UoY_Date;
+        $obj->setTimestamp($day);
+        for ($i = 0; $i < 365*2; $i++) {
+            echo $obj->format( "Y-m-d\n" );
+            $val = $obj->toString();
+            if ($val === false) {
+                echo "not convertable using given data.\n";
+            } else {
+                echo $val . "\n";
+            }
+            $obj->modify( '+1 day' );
+        }
     }
 }
 ?>

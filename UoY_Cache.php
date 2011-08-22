@@ -28,7 +28,7 @@ date_default_timezone_set('Europe/London');
  * @author Gareth Andrew Lloyd <gareth@ignition-web.co.uk>
  *
  * @license ? ?
- * @link github.com/UniversityRadioYork/University-of-York-Society-Common-Library
+ * @link https://github.com/UniversityRadioYork/UoYSocsLib
  */
 class UoY_Cache 
 {
@@ -69,6 +69,31 @@ class UoY_Cache
         }
         sort($res, SORT_NUMERIC);
         return $res;
+    }
+
+    /**
+     * Checks whether or not the given academic year exists in the system.
+     * 
+     * Data for the year existing in the system is a necessary prerequisite
+     * for the 
+     * 
+     * @param integer $year   The year to look up.
+     * @param boolean $update If true, the system will update itself. (?)
+     * 
+     * @return boolean Whether or not the year exists in the system.
+     */
+    public static function yearExists($year, $update = false)
+    {
+        if (!self::cacheExists()) {
+            return false; //cache file missing and can't be made
+        }
+        $tmpxml = self::cacheHandle();
+        $xmlRes = self::getYearResource($tmpxml,$year);
+        if (($xmlRes == array()) && $update) {
+            self::updateCache();
+            $xmlRes = self::getYearResource($tmpxml,$year);
+        }
+        return $xmlRes != array(); //no year exist in xml even after update
     }
 
     /**
