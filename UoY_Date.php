@@ -37,7 +37,6 @@ class UoY_Date extends DateTime
 
     protected $term;
     protected $year;
-    protected $isBreak;
     protected $week;
     protected $lastEpoch;
     
@@ -78,56 +77,45 @@ class UoY_Date extends DateTime
         //    throw new OutOfBoundsException('Day ID is too high.');
         //}
     */
+
+		protected static function getTerms($year)
+		{
+    		if (!UoY_Cache::yearExists($year, true)) {
+        		return false;
+        }
+        $tmpxml = UoY_Cache::cacheHandle();
+        $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
+        $feature[] = new UoY_Date("1st September $year");//inclusive
+        $feature[] = new UoY_Date("1st September " . ($year + 1));//exclusive
+        foreach ($xmlRes[0]->term as $t) {
+            //inclusive
+            $prevMon = new UoY_Date("last Monday " . ($t->start));
+            $m1week = new UoY_Date(($t->start) . " -1 week");
+            if ($prevMon == $m1week) {
+              $feature[] = new UoY_Date($t->start);
+            } else {
+              $feature[] = $prevMon;
+            }
+            //exclusive
+            $feature[] = new UoY_Date("next Monday " . ($t->end));
+        }
+        usort($feature, function($a,$b){
+          if ($a->getTimestamp() == $b->getTimestamp()) 
+          return 0; 
+          return ($a->getTimestamp()) > ($b->getTimestamp()) ? +1 : -1;
+        });
+				return $feature;
+		}
     
-    /**
-     * Returns the academic year of the given date.
-     * 
-     * @return integer The academic year of the given date, as defined as the
-     *                 calendar year upon which Monday Week 1 Autumn falls.
-     */
-    protected function getYearNum()
-    {
-        // assumption 01-Sept is the earliest academic year start
-        //TODO convert to DateTime
-        return @date("Y", $this->getTimestamp() - @strtotime("1st September 1970"));
-    }
-
-    public function getYear()	
-   {
-        if (!$this->update()) return false;
-        return $this->year;
-   }
-
     protected function update()
     {
         if ($this->lastEpoch != $this->getTimestamp())
         {
-            $year = $this->getYearNum();
-            if (!UoY_Cache::yearExists($year, true)) {
-                return false;
-            }
-            $tmpxml = UoY_Cache::cacheHandle();
-            $xmlRes = UoY_Cache::getYearResource($tmpxml,$year);
-            $feature[] = new UoY_Date("1st September $year");//inclusive
-            $feature[] = new UoY_Date("1st September " . ($year + 1));//exclusive
-            
-            foreach ($xmlRes[0]->term as $t) {
-                //inclusive
-                $prevMon = new UoY_Date("last Monday " . ($t->start));
-                $m1week = new UoY_Date(($t->start) . " -1 week");
-                if ($prevMon == $m1week) {
-                  $feature[] = new UoY_Date($t->start);
-                } else {
-                  $feature[] = $prevMon;
-                }
-                //exclusive
-                $feature[] = new UoY_Date("next Monday " . ($t->end));
-            }
-            usort($feature, function($a,$b){
-              if ($a->getTimestamp() == $b->getTimestamp()) 
-              return 0; 
-              return ($a->getTimestamp()) > ($b->getTimestamp()) ? +1 : -1;
-            });
+        		// assumption 01-Sept is the earliest academic year start
+        		//TODO convert to DateTime
+        		$year = @date("Y", $this->getTimestamp() - @strtotime("1st September 1970"));
+						$feature = self::getTerms($year);
+						if (!$feature) return false;
             //TODO rename to ??? $term isn't correct
             $term = 0;
             for ($i = 0; $i < count($feature) - 1; $i = $i + 1) {
@@ -157,16 +145,11 @@ class UoY_Date extends DateTime
                 }
             }
             $weeknum = $week;
-            $termnum = (($term % 2) == 1) ? ($term + 1) / 2 : 0;
-            $breaknum = (($term % 2) == 0) ? ($term) / 2 : 0;
-            if ($term == 0) {
-                $breaknum = 3;
-            }
+            $termnum = ($term == 0) ? 6 : $term;
             $yearnum = ($term != 0) ? $year : $year - 1;
             //update values
             $this->year = $yearnum;
-            $this->term = intval($termnum) === 0 ? intval($breaknum) : intval($termnum);
-            $this->isBreak = (intval($termnum) === 0);
+            $this->term = intval($termnum);
             if ($weeknum === false) {
                 $this->week = false; 
             } else {
@@ -176,6 +159,16 @@ class UoY_Date extends DateTime
         }
         return true;
     }
+
+		public function setTermdate($ayear, $term, $week, $day)
+		{
+				$feature = self::getTerms($ayear);
+				$date = $feature[$term];
+				$date->modify("+".($week-1)." weeks");
+				$date->modify("+".($day-1)." days");
+				$this->setTimestamp($date->getTimestamp());
+				//TODO check valid weeks, it shouldn't excede $feature[$term+1]
+		}
 
     /**
      * Gets the term (or break).
@@ -188,6 +181,12 @@ class UoY_Date extends DateTime
         return $this->term;
     }
     
+    public function getYear()	
+    {
+        if (!$this->update()) return false;
+        return $this->year;
+    }
+
     /**
      * Gets the term (or break) name.
      * 
@@ -196,28 +195,21 @@ class UoY_Date extends DateTime
     public function getTermName()
     {
         if (!$this->update()) return false;
-        if ($this->isInBreak()) {
-            switch ($this->term) {
-            case UoY_DateConstants::BREAK_WINTER:
-                return UoY_DateConstants::NAME_BREAK_WINTER;
-            case UoY_DateConstants::BREAK_SPRING:
-                return UoY_DateConstants::NAME_BREAK_SPRING;
-            case UoY_DateConstants::BREAK_SUMMER:
-                return UoY_DateConstants::NAME_BREAK_SUMMER;
-            default:
-                throw new LogicException('Invalid term stored in date.');
-            }
-        } else {
-            switch ($this->term) {
-            case UoY_DateConstants::TERM_AUTUMN:
-                return UoY_DateConstants::NAME_TERM_AUTUMN;
-            case UoY_DateConstants::TERM_SPRING:
-                return UoY_DateConstants::NAME_TERM_SPRING;
-            case UoY_DateConstants::TERM_SUMMER:
-                return UoY_DateConstants::NAME_TERM_SUMMER;
-            default:
-                throw new LogicException('Invalid term stored in date.');
-            }
+        switch ($this->term) {
+          case UoY_DateConstants::BREAK_WINTER:
+              return UoY_DateConstants::NAME_BREAK_WINTER;
+          case UoY_DateConstants::BREAK_SPRING:
+              return UoY_DateConstants::NAME_BREAK_SPRING;
+          case UoY_DateConstants::BREAK_SUMMER:
+              return UoY_DateConstants::NAME_BREAK_SUMMER;
+          case UoY_DateConstants::TERM_AUTUMN:
+              return UoY_DateConstants::NAME_TERM_AUTUMN;
+          case UoY_DateConstants::TERM_SPRING:
+              return UoY_DateConstants::NAME_TERM_SPRING;
+          case UoY_DateConstants::TERM_SUMMER:
+              return UoY_DateConstants::NAME_TERM_SUMMER;
+          default:
+              throw new LogicException('Invalid term stored in date.');
         }
     }
 
@@ -233,8 +225,9 @@ class UoY_Date extends DateTime
      */
     public function isInBreak()
     {
-        if (!$this->update()) return false;
-        return $this->isBreak;
+        if (!$this->update()) 
+            throw new Exception('Not enough information');
+        return ($term % 2) == 0;
     }
     
     /**

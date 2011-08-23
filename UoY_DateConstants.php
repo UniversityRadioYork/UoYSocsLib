@@ -37,12 +37,12 @@ class UoY_DateConstants
     const NAME_TERM_AUTUMN = 'Autumn Term';
     
     /** Identifier for Spring term. */
-    const TERM_SPRING = 2;
+    const TERM_SPRING = 3;
     /** Name for Spring term. */
     const NAME_TERM_SPRING = 'Spring Term';
     
     /** Identifier for Summer term. */
-    const TERM_SUMMER = 3;
+    const TERM_SUMMER = 5;
     /** Name for Summer term. */
     const NAME_TERM_SUMMER = 'Summer Term';
 
@@ -64,17 +64,17 @@ class UoY_DateConstants
     // BREAKS //
     
     /** Identifier for Winter break. */
-    const BREAK_WINTER = 1;
+    const BREAK_WINTER = 2;
     /** Name for Winter break. */
     const NAME_BREAK_WINTER = 'Winter Break';
     
     /** Identifier for Spring break. */
-    const BREAK_SPRING = 2;
+    const BREAK_SPRING = 4;
     /** Name for Spring break. */
     const NAME_BREAK_SPRING = 'Spring Break';
     
     /** Identifier for Summer break. */
-    const BREAK_SUMMER = 3;
+    const BREAK_SUMMER = 6;
     /** Name for Summer break. */
     const NAME_BREAK_SUMMER = 'Summer Break';
     
